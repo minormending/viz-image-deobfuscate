@@ -39,13 +39,21 @@ def _draw_image(
     dest_image.paste(cropped_image, (dest_x, dest_y))
 
 
-def unobfuscate_image(image_name: str, width: int, height: int) -> Image:
+def unobfuscate_image(image_name: str) -> Image:
     keys: List[int] = _get_exif_key(image_name)
 
     obfuscated_image: Image = Image.open(image_name)
+    
+    spacing: int = 10
+    columns: int = 10
+    rows: int = 15
+    width: int = obfuscated_image.width - (columns - 1) * spacing
+    height: int = obfuscated_image.height - (rows - 1) * spacing
+    
     unobfuscated_image: Image = Image.new("RGB", size=(width, height), color="white")
-    tile_width = floor(width / 10)
-    tile_height = floor(height / 15)
+
+    tile_width: int = floor(width / 10)
+    tile_height: int = floor(height / 15)
 
     # The bounding 'tiles' are the actual edges of the page, so copy the over.
     _draw_image(  # top
@@ -55,7 +63,7 @@ def unobfuscate_image(image_name: str, width: int, height: int) -> Image:
         unobfuscated_image,
         obfuscated_image,
         0,
-        tile_height + 10,
+        tile_height + spacing,
         tile_width,
         height - 2 * tile_height,
         0,
@@ -65,20 +73,20 @@ def unobfuscate_image(image_name: str, width: int, height: int) -> Image:
         unobfuscated_image,
         obfuscated_image,
         0,
-        14 * (tile_height + 10),
+        (rows - 1) * (tile_height + spacing),
         width,
-        obfuscated_image.height - 14 * (tile_height + 10),
+        obfuscated_image.height - (rows - 1) * (tile_height + spacing),
         0,
-        14 * tile_height,
+        (rows - 1) * tile_height,
     )
     _draw_image(  # right
         unobfuscated_image,
         obfuscated_image,
-        9 * (tile_width + 10),
-        tile_height + 10,
-        tile_width + (width - 10 * tile_width),
+        (columns - 1) * (tile_width + spacing),
+        tile_height + spacing,
+        tile_width + (width - columns * tile_width),
         height - 2 * tile_height,
-        9 * tile_width,
+        (columns - 1) * tile_width,
         tile_height,
     )
 
@@ -87,8 +95,8 @@ def unobfuscate_image(image_name: str, width: int, height: int) -> Image:
         _draw_image(
             unobfuscated_image,
             obfuscated_image,
-            floor((idx % 8 + 1) * (tile_width + 10)),
-            floor((floor(idx / 8) + 1) * (tile_height + 10)),
+            floor((idx % 8 + 1) * (tile_width + spacing)),
+            floor((floor(idx / 8) + 1) * (tile_height + spacing)),
             floor(tile_width),
             floor(tile_height),
             floor((key % 8 + 1) * tile_width),
@@ -98,8 +106,13 @@ def unobfuscate_image(image_name: str, width: int, height: int) -> Image:
 
 
 if __name__ == "__main__":
-    obfuscated_image_name: str = "4.jpg"
-    width: int = 784
-    height: int = 1145
-    unobfuscated_image: Image = unobfuscate_image(obfuscated_image_name, width, height)
-    unobfuscated_image.save("page.jpg")
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Unobfuscate manage page image.")
+    parser.add_argument("obfuscated_image", help="Path to the obfuscated image.")
+    parser.add_argument("unobfuscated_image", help="Output path to the obfuscated image.")
+
+    args = parser.parse_args()
+
+    unobfuscated_image: Image = unobfuscate_image(args.obfuscated_image)
+    unobfuscated_image.save(args.unobfuscated_image)
