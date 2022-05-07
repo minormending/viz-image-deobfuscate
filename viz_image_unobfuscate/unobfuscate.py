@@ -41,9 +41,11 @@ def _draw_image(
 
 def unobfuscate_image(image_name: str) -> Image:
     keys: List[int] = _get_exif_key(image_name)
+    if not keys:
+        return None
 
     obfuscated_image: Image = Image.open(image_name)
-    
+
     spacing: int = 10
     columns: int = 10
     rows: int = 15
@@ -115,4 +117,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     unobfuscated_image: Image = unobfuscate_image(args.obfuscated_image)
-    unobfuscated_image.save(args.unobfuscated_image)
+    if unobfuscate_image:
+        unobfuscated_image.save(args.unobfuscated_image)
+        print(f"Successfully unobfuscated image at: {args.unobfuscated_image}")
+    else:
+        print(f"Unable to unobfuscate image, check image Exif data.")
+        exit(1)
