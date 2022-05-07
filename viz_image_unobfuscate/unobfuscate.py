@@ -51,7 +51,7 @@ def unobfuscate_image(image_name: str) -> Image:
     rows: int = 15
     width: int = obfuscated_image.width - (columns - 1) * spacing
     height: int = obfuscated_image.height - (rows - 1) * spacing
-    
+
     unobfuscated_image: Image = Image.new("RGB", size=(width, height), color="white")
 
     tile_width: int = floor(width / 10)
@@ -112,7 +112,9 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Unobfuscate manage page image.")
     parser.add_argument("obfuscated_image", help="Path to the obfuscated image.")
-    parser.add_argument("unobfuscated_image", help="Output path to the obfuscated image.")
+    parser.add_argument(
+        "unobfuscated_image", help="Output path to the obfuscated image."
+    )
 
     args = parser.parse_args()
 
