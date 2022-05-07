@@ -3,10 +3,10 @@
 Viz manga pages are delivered to the browser as obfuscated images and the client JS is responsible for unobfuscating those images for the viewer to read. This program reproduces the unobfuscate logic to produce a readable image.
 
 `obfuscated image:`
-![obfuscated image](https://github.com/minormending/viz-image-unobfuscate/tree/main/images/raw1.png)
+![obfuscated image](https://github.com/minormending/viz-image-unobfuscate/blob/main/images/raw1.jpg)
 
 `unobfuscated image:`
-![obfuscated image](https://github.com/minormending/viz-image-unobfuscate/tree/main/images/page1.png)
+![obfuscated image](https://github.com/minormending/viz-image-unobfuscate/blob/main/images/page1.jpg)
 
 The image Exif metadata stores a hex digest to unobfuscate the image. Using the each byte value of the digest with it's position in the digest, we can select the appropriate tile in the obfuscated image and put it in the proper place in the unobfuscated image.  
 
