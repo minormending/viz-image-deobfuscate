@@ -1,8 +1,38 @@
-from typing import Any, Dict, List
+from dataclasses import dataclass
+from typing import Any, Dict, List, Tuple
 from math import floor
 from PIL import Image
 import piexif
 import logging
+
+
+@dataclass
+class Point:
+    x: int
+    y: int
+
+    def loc(self) -> Tuple[int, int]:
+        return (self.x, self.y)
+
+
+@dataclass
+class Size:
+    width: int
+    height: int
+
+
+@dataclass
+class Box:
+    point: Point
+    size: Size
+
+    def region(self) -> Tuple[int, int, int, int]:
+        return (
+            self.point.x,
+            self.point.y,
+            self.point.x + self.size.width,
+            self.point.y + self.size.height,
+        )
 
 
 def _get_exif_key(image_loc: str) -> List[int]:
@@ -24,19 +54,10 @@ def _get_exif_key(image_loc: str) -> List[int]:
 
 
 def _draw_image(
-    dest_image: Image,
-    src_image: Image,
-    src_x: int,
-    src_y: int,
-    src_width: int,
-    src_height: int,
-    dest_x: int,
-    dest_y: int,
+    dest_image: Image, src_image: Image, src_box: Box, dest_point: Point
 ) -> None:
-    cropped_image: Image = src_image.crop(
-        box=(src_x, src_y, src_x + src_width, src_y + src_height)
-    )
-    dest_image.paste(cropped_image, (dest_x, dest_y))
+    cropped_image: Image = src_image.crop(box=src_box.region())
+    dest_image.paste(cropped_image, dest_point.loc())
 
 
 def unobfuscate_image(image_name: str) -> Image:
@@ -59,37 +80,36 @@ def unobfuscate_image(image_name: str) -> Image:
 
     # The bounding 'tiles' are the actual edges of the page, so copy the over.
     _draw_image(  # top
-        unobfuscated_image, obfuscated_image, 0, 0, width, tile_height, 0, 0
+        unobfuscated_image,
+        obfuscated_image,
+        Box(Point(0, 0), Size(width, tile_height)),
+        Point(0, 0),
     )
     _draw_image(  # left
         unobfuscated_image,
         obfuscated_image,
-        0,
-        tile_height + spacing,
-        tile_width,
-        height - 2 * tile_height,
-        0,
-        tile_height,
+        Box(
+            Point(0, tile_height + spacing), Size(tile_width, height - 2 * tile_height)
+        ),
+        Point(0, tile_height),
     )
     _draw_image(  # bottom
         unobfuscated_image,
         obfuscated_image,
-        0,
-        (rows - 1) * (tile_height + spacing),
-        width,
-        obfuscated_image.height - (rows - 1) * (tile_height + spacing),
-        0,
-        (rows - 1) * tile_height,
+        Box(
+            Point(0, (rows - 1) * (tile_height + spacing)),
+            Size(width, obfuscated_image.height - (rows - 1) * (tile_height + spacing)),
+        ),
+        Point(0, (rows - 1) * tile_height),
     )
     _draw_image(  # right
         unobfuscated_image,
         obfuscated_image,
-        (columns - 1) * (tile_width + spacing),
-        tile_height + spacing,
-        tile_width + (width - columns * tile_width),
-        height - 2 * tile_height,
-        (columns - 1) * tile_width,
-        tile_height,
+        Box(
+            Point((columns - 1) * (tile_width + spacing), tile_height + spacing),
+            Size(tile_width + (width - columns * tile_width), height - 2 * tile_height),
+        ),
+        Point((columns - 1) * tile_width, tile_height),
     )
 
     for idx, key in enumerate(keys):
@@ -97,12 +117,17 @@ def unobfuscate_image(image_name: str) -> Image:
         _draw_image(
             unobfuscated_image,
             obfuscated_image,
-            floor((idx % 8 + 1) * (tile_width + spacing)),
-            floor((floor(idx / 8) + 1) * (tile_height + spacing)),
-            floor(tile_width),
-            floor(tile_height),
-            floor((key % 8 + 1) * tile_width),
-            floor((floor(key / 8) + 1) * tile_height),
+            Box(
+                Point(
+                    floor((idx % 8 + 1) * (tile_width + spacing)),
+                    floor((floor(idx / 8) + 1) * (tile_height + spacing)),
+                ),
+                Size(floor(tile_width), floor(tile_height)),
+            ),
+            Point(
+                floor((key % 8 + 1) * tile_width),
+                floor((floor(key / 8) + 1) * tile_height),
+            ),
         )
     return unobfuscated_image
 
