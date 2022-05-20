@@ -33,6 +33,6 @@ jobs:
         file: ./Dockerfile
         builder: ${{ steps.buildx.outputs.name }}
         push: true
-        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/viz-image-unobfuscate:latest
-        cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/viz-image-unobfuscate:buildcache
-        cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/viz-image-unobfuscate:buildcache,mode=max
+        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/viz-image-deobfuscate:latest
+        cache-from: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/viz-image-deobfuscate:buildcache
+        cache-to: type=registry,ref=${{ secrets.DOCKER_HUB_USERNAME }}/viz-image-deobfuscate:buildcache,mode=max
