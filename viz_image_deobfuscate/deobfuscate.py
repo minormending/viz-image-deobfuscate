@@ -60,7 +60,7 @@ def _draw_image(
     dest_image.paste(cropped_image, dest_point.loc())
 
 
-def unobfuscate_image(image_name: str) -> Image:
+def deobfuscate_image(image_name: str) -> Image:
     keys: List[int] = _get_exif_key(image_name)
     if not keys:
         return None
@@ -73,20 +73,20 @@ def unobfuscate_image(image_name: str) -> Image:
     width: int = obfuscated_image.width - (columns - 1) * spacing
     height: int = obfuscated_image.height - (rows - 1) * spacing
 
-    unobfuscated_image: Image = Image.new("RGB", size=(width, height), color="white")
+    deobfuscated_image: Image = Image.new("RGB", size=(width, height), color="white")
 
     tile_width: int = floor(width / 10)
     tile_height: int = floor(height / 15)
 
     # The bounding 'tiles' are the actual edges of the page, so copy the over.
     _draw_image(  # top
-        unobfuscated_image,
+        deobfuscated_image,
         obfuscated_image,
         Box(Point(0, 0), Size(width, tile_height)),
         Point(0, 0),
     )
     _draw_image(  # left
-        unobfuscated_image,
+        deobfuscated_image,
         obfuscated_image,
         Box(
             Point(0, tile_height + spacing), Size(tile_width, height - 2 * tile_height)
@@ -94,7 +94,7 @@ def unobfuscate_image(image_name: str) -> Image:
         Point(0, tile_height),
     )
     _draw_image(  # bottom
-        unobfuscated_image,
+        deobfuscated_image,
         obfuscated_image,
         Box(
             Point(0, (rows - 1) * (tile_height + spacing)),
@@ -103,7 +103,7 @@ def unobfuscate_image(image_name: str) -> Image:
         Point(0, (rows - 1) * tile_height),
     )
     _draw_image(  # right
-        unobfuscated_image,
+        deobfuscated_image,
         obfuscated_image,
         Box(
             Point((columns - 1) * (tile_width + spacing), tile_height + spacing),
@@ -115,7 +115,7 @@ def unobfuscate_image(image_name: str) -> Image:
     for idx, key in enumerate(keys):
         # move each center tile to their proper location
         _draw_image(
-            unobfuscated_image,
+            deobfuscated_image,
             obfuscated_image,
             Box(
                 Point(
@@ -129,24 +129,24 @@ def unobfuscate_image(image_name: str) -> Image:
                 floor((floor(key / 8) + 1) * tile_height),
             ),
         )
-    return unobfuscated_image
+    return deobfuscated_image
 
 
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Unobfuscate manage page image.")
+    parser = argparse.ArgumentParser(description="Deobfuscate manage page image.")
     parser.add_argument("obfuscated_image", help="Path to the obfuscated image.")
     parser.add_argument(
-        "unobfuscated_image", help="Output path to the obfuscated image."
+        "deobfuscated_image", help="Output path to the obfuscated image."
     )
 
     args = parser.parse_args()
 
-    unobfuscated_image: Image = unobfuscate_image(args.obfuscated_image)
-    if unobfuscate_image:
-        unobfuscated_image.save(args.unobfuscated_image)
-        print(f"Successfully unobfuscated image at: {args.unobfuscated_image}")
+    deobfuscated_image: Image = deobfuscate_image(args.obfuscated_image)
+    if deobfuscate_image:
+        deobfuscated_image.save(args.deobfuscated_image)
+        print(f"Successfully deobfuscated image at: {args.deobfuscated_image}")
     else:
-        print(f"Unable to unobfuscate image, check image Exif data.")
+        print(f"Unable to deobfuscate image, check image Exif data.")
         exit(1)

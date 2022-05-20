@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "viz-image-unobfuscate"
+name = "viz-image-deobfuscate"
 version = "0.1.3"
-description = "Unobfuscate Viz-style manga images."
+description = "Deobfuscate Viz-style manga images."
 authors = ["Kevin Ramdath <krpent@gmail.com>"]
-repository = "https://github.com/minormending/viz-image-unobfuscate"
+repository = "https://github.com/minormending/viz-image-deobfuscate"
 readme = "README.md"
 license = "MIT"
-keywords = ["viz", "manga", "unobfuscate", "image"]
+keywords = ["viz", "manga", "deobfuscate", "image"]
 
 [tool.poetry.dependencies]
 python = "^3.10"

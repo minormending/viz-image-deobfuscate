@@ -1,4 +1,4 @@
-from viz_image_unobfuscate import __version__
+from viz_image_deobfuscate import __version__
 
 
 def test_version():

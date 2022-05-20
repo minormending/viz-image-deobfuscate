@@ -8,5 +8,5 @@ RUN pip install poetry
 RUN poetry config virtualenvs.create false
 RUN poetry install --no-dev
 
-COPY viz_image_unobfuscate /app
-ENTRYPOINT [ "python", "./unobfuscate.py" ]
+COPY viz_image_deobfuscate /app
+ENTRYPOINT [ "python", "./deobfuscate.py" ]
