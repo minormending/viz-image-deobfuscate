@@ -1,12 +1,14 @@
 FROM python:3.10-slim
 
-RUN mkdir /app
-COPY pyproject.toml /app 
-WORKDIR /app
-
 RUN pip install poetry
 RUN poetry config virtualenvs.create false
+
+RUN mkdir -p /app/viz_image_deobfuscate
+COPY pyproject.toml /app 
+COPY README.md /app
+COPY viz_image_deobfuscate /app/viz_image_deobfuscate
+
+WORKDIR /app
 RUN poetry install --no-dev
 
-COPY viz_image_deobfuscate /app
-ENTRYPOINT [ "python", "./deobfuscate.py" ]
+ENTRYPOINT [ "image-deobfuscate-cli" ]
