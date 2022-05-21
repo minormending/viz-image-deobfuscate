@@ -130,4 +130,3 @@ def deobfuscate_image(image_name: str) -> Image:
             ),
         )
     return deobfuscated_image
-
